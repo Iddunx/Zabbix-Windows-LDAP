@@ -1,0 +1,99 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 846977d1dfed4968bc5f8bdb363285bc
+      name: 'Templates/Operating systems'
+  templates:
+    - uuid: f103ec46677c4b198c24e1a95fe7f52f
+      template: 'LDAP Check by PowerShell'
+      name: 'LDAP Check by PowerShell'
+      description: |
+        This template monitors LDAP Bind and Search times using two PowerShell scripts executed on the target host.
+        It helps identify latency or performance issues with LDAP servers, typically domain controllers.
+        
+        Included scripts:
+        ldap_discovery.ps1 — discovers LDAP servers and creates item prototypes.
+        ldap_check.ps1 — connects to each LDAP server and measures performance metrics.
+        
+        Note:
+        Inside the ldap_check.ps1 script, adjust the following variables to match your environment:
+        $baseDN = "DC=domain,DC=local"
+        $filter = "(sAMAccountName=Administrator)"
+        
+        Macro:
+        {$LDAP_SERVERS} — comma-separated list of LDAP servers (e.g. DC01.domain.local,DC02.domain.local).
+        Default value: (localhost) (i.e. the host where the script runs).
+        
+        Collected metrics:
+        
+        LDAP Bind Time:
+        Time required to establish a connection and authenticate with the LDAP server.
+        Includes:
+        - TCP connection setup
+        - Initial LDAP handshake
+        - Authentication (if applicable)
+        Helps detect network latency, authentication delays, or server responsiveness issues.
+        
+        LDAP Search Time:
+        Time required to perform a directory search query via LDAP.
+        Includes:
+        - Constructing and sending an LDAP query (e.g., sAMAccountName=Administrator)
+        - Executing the search on the server
+        - Returning the result
+        Helps detect slow LDAP responses, poor indexing, or performance issues in Active Directory.
+      groups:
+        - name: 'Templates/Operating systems'
+      items:
+        - uuid: 2858b684f0744aad8f923abeb96d4081
+          name: 'LDAP Raw Output'
+          type: ZABBIX_ACTIVE
+          key: 'ldap.check[{$LDAP_SERVERS}]'
+          delay: 5m
+          history: 14d
+          value_type: TEXT
+          tags:
+            - tag: service
+              value: LDAP
+      discovery_rules:
+        - uuid: 7bdfe79454364e9884f55a6c9fd7b585
+          name: 'LDAP Server Discovery'
+          type: ZABBIX_ACTIVE
+          key: 'ldap.discovery[{$LDAP_SERVERS}]'
+          delay: 1h
+          item_prototypes:
+            - uuid: a1decc3a6f4945fda9d0b478f4add605
+              name: 'LDAP {#LDAPSERVER} Bind Time'
+              type: DEPENDENT
+              key: 'ldap.bind.time[{#LDAPSERVER}]'
+              history: 14d
+              preprocessing:
+                - type: REGEX
+                  parameters:
+                    - '^{#LDAPSERVER}\|(\d+)\|(\d+)'
+                    - \1
+              master_item:
+                key: 'ldap.check[{$LDAP_SERVERS}]'
+              tags:
+                - tag: service
+                  value: LDAP
+            - uuid: a3e28bd6c17d49d0b3506d4039acf207
+              name: 'LDAP {#LDAPSERVER} Search Time'
+              type: DEPENDENT
+              key: 'ldap.search.time[{#LDAPSERVER}]'
+              history: 14d
+              preprocessing:
+                - type: REGEX
+                  parameters:
+                    - '^{#LDAPSERVER}\|(\d+)\|(\d+)'
+                    - \2
+              master_item:
+                key: 'ldap.check[{$LDAP_SERVERS}]'
+              tags:
+                - tag: service
+                  value: LDAP
+      tags:
+        - tag: service
+          value: LDAP
+      macros:
+        - macro: '{$LDAP_SERVERS}'
+          value: localhost
