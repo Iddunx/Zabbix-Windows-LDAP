@@ -1,4 +1,3 @@
-````markdown
 # Zabbix-Windows-LDAP
 
 This Zabbix template monitors LDAP Bind and Search performance using PowerShell scripts executed on Windows hosts.
@@ -46,7 +45,7 @@ Includes:
 Measures the time required to perform a directory search query via LDAP.
 Includes:
 
-* Sending the LDAP query (e.g., `sAMAccountName=sys.admin00`)
+* Sending the LDAP query (e.g., `sAMAccountName=Administrator`)
 * Server-side execution of the search
 * Retrieval of the result
 
@@ -61,11 +60,16 @@ Includes:
 
 ## Installation Steps
 
-1. Copy `ldap_discovery.ps1` and `ldap_check.ps1` to the appropriate script directory on the target Windows host.
-2. Import the Zabbix template into your Zabbix server.
-3. Assign the template to the desired Windows host(s).
-4. Define the `{$LDAP_SERVERS}` macro (if different from default).
-5. Ensure the Zabbix Agent is allowed to run external scripts and that the scripts have execution permission.
+1. Copy `ldap_discovery.ps1` and `ldap_check.ps1` to "C:\Scripts\" (for example) on the target Windows host.
+2. Add to zabbix_agent2.conf in the end
+```
+UserParameter=ldap.check[*],powershell -ExecutionPolicy Bypass -File "C:\Scripts\ldap_check.ps1" -serverList "$1"
+UserParameter=ldap.discovery[*],powershell -ExecutionPolicy Bypass -File "C:\Scripts\ldap_discovery.ps1" -serverList "$1"
+```
+3. Import the Zabbix template into your Zabbix server.
+4. Assign the template to the desired Windows host(s).
+5. Define the `{$LDAP_SERVERS}` macro (if different from default).
+6. Ensure the Zabbix Agent is allowed to run external scripts and that the scripts have execution permission.
 
 ## Troubleshooting
 
