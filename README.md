@@ -63,8 +63,8 @@ Includes:
 1. Copy `ldap_discovery.ps1` and `ldap_check.ps1` to "C:\Scripts\" (for example) on the target Windows host.
 2. Add to zabbix_agent2.conf in the end
 ```
-UserParameter=ldap.check[*],powershell -ExecutionPolicy Bypass -File "C:\Scripts\ldap_check.ps1" -serverList "$1"
-UserParameter=ldap.discovery[*],powershell -ExecutionPolicy Bypass -File "C:\Scripts\ldap_discovery.ps1" -serverList "$1"
+UserParameter=ldap.check[*],powershell -ExecutionPolicy Bypass -File "C:\Program Files\Zabbix Agent 2\scripts\ldap_check.ps1" -serverList "$1"
+UserParameter=ldap.discovery[*],powershell -ExecutionPolicy Bypass -File "C:\Program Files\Zabbix Agent 2\scripts\ldap_discovery.ps1" -serverList "$1"
 ```
 3. Import the Zabbix template into your Zabbix server.
 4. Assign the template to the desired Windows host(s).
