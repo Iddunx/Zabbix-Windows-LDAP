@@ -1,7 +1,8 @@
 ````markdown
 # Zabbix-Windows-LDAP
 
-This Zabbix template monitors LDAP Bind and Search performance using PowerShell scripts executed on Windows hosts. It is designed to help identify latency or performance issues in LDAP servers, particularly Active Directory domain controllers.
+This Zabbix template monitors LDAP Bind and Search performance using PowerShell scripts executed on Windows hosts.
+It is designed to help identify latency or performance issues in LDAP servers, particularly Active Directory domain controllers.
 
 ## Overview
 
